@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 
 public class Calculator implements ActionListener {
     public static void main(String[] args) {
@@ -12,10 +11,17 @@ public class Calculator implements ActionListener {
     // Output Label
     JLabel outputLabel;
 
-    double previousNumber;
-    String operator;
+    double currentResult;
+    private String currentOperator;
+    private boolean newOperation;
 
     public Calculator() {
+        // Initialize variables
+        currentResult = 0;
+        currentOperator = "";
+        newOperation = true;
+
+        // Initialize swing interface
         initializeInterface();
     }
 
@@ -24,29 +30,78 @@ public class Calculator implements ActionListener {
         JButton button = (JButton) e.getSource();
         String buttonText = button.getText();
 
-        switch (buttonText) {
+        String numberString = "0123456789";
+        if (numberString.contains(buttonText)) {
+            handleNumberInput(buttonText);
+            return;
+        }
+
+        handleOperatorInput(buttonText);
+    }
+
+    private void handleNumberInput(String number) {
+        if (newOperation) {
+            outputLabel.setText(number);
+            newOperation = false;
+            return;
+        }
+
+        outputLabel.setText(outputLabel.getText() + number);
+    }
+
+    private void handleOperatorInput(String operator) {
+        if (operator.equals("C")) {
+            reset();
+            return;
+        }
+
+        if (operator.equals("=")) {
+            calculate();
+            currentOperator = "";
+            newOperation = true;
+            return;
+        }
+
+        calculate();
+        currentOperator = operator;
+        newOperation = true;
+
+    }
+
+    private void calculate() {
+        double inputVal = Double.parseDouble(outputLabel.getText());
+
+        switch (currentOperator) {
+            case "":
+                currentResult = inputVal;
+                break;
             case "+":
-                operator = "add";
+                currentResult += inputVal;
                 break;
             case "-":
-                operator = "subtract";
+                currentResult -= inputVal;
                 break;
             case "*":
-                operator = "multiply";
+                currentResult *= inputVal;
                 break;
             case "/":
-                operator = "divide";
-                break;
-            case "C":
-                operator = "clear";
-                break;
-            case "=":
-                operator = "equals";
-                break;
-            default:
-                outputLabel.setText(outputLabel.getText() + buttonText);
+                if (inputVal == 0.0) {
+                    outputLabel.setText("ERR");
+                    return;
+                }
+
+                currentResult /= inputVal;
                 break;
         }
+
+        outputLabel.setText(String.valueOf(currentResult));
+    }
+
+    private void reset() {
+        currentResult = 0;
+        currentOperator = "";
+        outputLabel.setText("0");
+        newOperation = true;
     }
 
     private void initializeInterface() {
@@ -64,7 +119,7 @@ public class Calculator implements ActionListener {
         JPanel outputPanel = new JPanel();
         outputPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         outputPanel.setPreferredSize(new Dimension(400, 50));
-        outputLabel = new JLabel("1234");
+        outputLabel = new JLabel("0");
         outputLabel.setFont(font);
         outputPanel.add(outputLabel);
 
