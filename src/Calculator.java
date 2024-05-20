@@ -14,7 +14,7 @@ public class Calculator {
         JPanel outputPanel = new JPanel();
         outputPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         outputPanel.setPreferredSize(new Dimension(400,100));
-
+        //hello
         JLabel textArea = new JLabel("14667");
         Font font = new Font("DIALOG_INPUT",Font.PLAIN,60);
         textArea.setFont(font);
