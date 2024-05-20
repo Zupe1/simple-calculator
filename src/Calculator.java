@@ -83,7 +83,7 @@ public class Calculator {
         button1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Calc");
+                System.out.println("Test");
 
             }
         });
