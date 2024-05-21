@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -8,8 +7,7 @@ public class Calculator implements ActionListener {
         new Calculator();
     }
 
-    // Output Label
-    JLabel outputLabel;
+    CalculatorUI calculatorUI;
 
     double currentResult;
     private String currentOperator;
@@ -21,8 +19,7 @@ public class Calculator implements ActionListener {
         currentOperator = "";
         newOperation = true;
 
-        // Initialize swing interface
-        initializeInterface();
+        calculatorUI = new CalculatorUI(this);
     }
 
     @Override
@@ -30,23 +27,26 @@ public class Calculator implements ActionListener {
         JButton button = (JButton) e.getSource();
         String buttonText = button.getText();
 
-        String numberString = "0123456789";
-        if (numberString.contains(buttonText)) {
+        if (isNumber(buttonText)) {
             handleNumberInput(buttonText);
-            return;
         }
+        else {
+            handleOperatorInput(buttonText);
+        }
+    }
 
-        handleOperatorInput(buttonText);
+    private boolean isNumber(String buttonText) {
+        return buttonText.matches("[0-9]");
     }
 
     private void handleNumberInput(String number) {
         if (newOperation) {
-            outputLabel.setText(number);
+            calculatorUI.setOutputLabelText(number);
             newOperation = false;
             return;
         }
 
-        outputLabel.setText(outputLabel.getText() + number);
+        calculatorUI.setOutputLabelText(calculatorUI.getOutputLabelText() + number);
     }
 
     private void handleOperatorInput(String operator) {
@@ -69,7 +69,10 @@ public class Calculator implements ActionListener {
     }
 
     private void calculate() {
-        double inputVal = Double.parseDouble(outputLabel.getText());
+        if (calculatorUI.getOutputLabelText().equals("ERR")) {
+            reset();
+        }
+        double inputVal = Double.parseDouble(calculatorUI.getOutputLabelText());
 
         switch (currentOperator) {
             case "":
@@ -86,7 +89,7 @@ public class Calculator implements ActionListener {
                 break;
             case "/":
                 if (inputVal == 0.0) {
-                    outputLabel.setText("ERR");
+                    calculatorUI.setOutputLabelText("ERR");
                     return;
                 }
 
@@ -94,59 +97,13 @@ public class Calculator implements ActionListener {
                 break;
         }
 
-        outputLabel.setText(String.valueOf(currentResult));
+        calculatorUI.setOutputLabelText(String.valueOf(currentResult));
     }
 
     private void reset() {
         currentResult = 0;
         currentOperator = "";
-        outputLabel.setText("0");
+        calculatorUI.setOutputLabelText("0");
         newOperation = true;
-    }
-
-    private void initializeInterface() {
-        // Frame
-        JFrame frame = new JFrame("Calculator");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().setLayout(new BorderLayout());
-        frame.setResizable(false);
-        frame.setSize(400,450);
-
-        // Font
-        Font font = new Font("Dialogue", Font.PLAIN, 40);
-
-        // Output Panel
-        JPanel outputPanel = new JPanel();
-        outputPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        outputPanel.setPreferredSize(new Dimension(400, 50));
-        outputLabel = new JLabel("0");
-        outputLabel.setFont(font);
-        outputPanel.add(outputLabel);
-
-        // Button Panel
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(4, 4));
-
-        String[] buttonNames = {
-                "1", "2", "3", "+",
-                "4", "5", "6", "-",
-                "7", "8", "9", "*",
-                "C", "0", "/", "="
-        };
-
-        for (int i = 0; i < 16; i++) {
-            // Instantiate button with name
-            JButton button = new JButton(buttonNames[i]);
-            button.setFont(font);
-            button.addActionListener(this);
-
-            // Add buttons to Panel
-            buttonPanel.add(button);
-        }
-
-        // Add Panels to Frame and make visible
-        frame.getContentPane().add(buttonPanel, BorderLayout.CENTER);
-        frame.getContentPane().add(outputPanel, BorderLayout.NORTH);
-        frame.setVisible(true);
     }
 }
